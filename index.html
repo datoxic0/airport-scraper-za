@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AERO-INTEL // GLOBAL RECONNAISSANCE</title>
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    <script type="module" src="./assets/js/app.js"></script>
+</head>
+<body>
+    <div class="scanlines"></div>
+    
+    <div id="app-container" class="app-wrapper">
+        <header>
+            <div class="brand">
+                <span style="color:var(--text-main)">MIL-SPEC</span> // AIRPORT_SCRAPER
+            </div>
+            <div id="system-status" class="status-badge">SYSTEM STANDBY</div>
+        </header>
+
+        <div class="main-interface">
+            <!-- Sidebar -->
+            <aside class="panel control-sidebar">
+                <div class="panel-header">
+                    <span>MISSION CONTROL</span>
+                </div>
+
+                <!-- Scrollable Content Wrapper -->
+                <div class="sidebar-content">
+                    <!-- Target Selection -->
+                    <div class="control-group">
+                        <label>TARGET SECTOR</label>
+                        <select id="region-select">
+                            <option value="custom">-- CUSTOM COORDINATES --</option>
+                            <optgroup label="Global Operations">
+                                <option value="https://ourairports.com/airports.html?sort=name">WORLDWIDE (FULL SCAN)</option>
+                            </optgroup>
+                            <optgroup label="Continents">
+                                <option value="https://ourairports.com/continents/AF/airports.html?sort=name">AFRICA (4,129)</option>
+                                <option value="https://ourairports.com/continents/AN/airports.html?sort=name">ANTARCTICA (46)</option>
+                                <option value="https://ourairports.com/continents/AS/airports.html?sort=name">ASIA (12,315)</option>
+                                <option value="https://ourairports.com/continents/EU/airports.html?sort=name">EUROPE (12,245)</option>
+                                <option value="https://ourairports.com/continents/NA/airports.html?sort=name">NORTH AMERICA (39,352)</option>
+                                <option value="https://ourairports.com/continents/OC/airports.html?sort=name">OCEANIA (4,159)</option>
+                                <option value="https://ourairports.com/continents/SA/airports.html?sort=name">SOUTH AMERICA (11,941)</option>
+                            </optgroup>
+                            <optgroup label="Strategic Nations (BRICS+)">
+                                <option value="https://ourairports.com/countries/ZA/airports.html?sort=name" selected>REP. OF SOUTH AFRICA (661)</option>
+                                <option value="https://ourairports.com/countries/BR/airports.html?sort=name">BRAZIL (BR)</option>
+                                <option value="https://ourairports.com/countries/RU/airports.html?sort=name">RUSSIA (RU)</option>
+                                <option value="https://ourairports.com/countries/IN/airports.html?sort=name">INDIA (IN)</option>
+                                <option value="https://ourairports.com/countries/CN/airports.html?sort=name">CHINA (CN)</option>
+                                <option value="https://ourairports.com/countries/IR/airports.html?sort=name">IRAN (IR)</option>
+                                <option value="https://ourairports.com/countries/EG/airports.html?sort=name">EGYPT (EG)</option>
+                                <option value="https://ourairports.com/countries/ET/airports.html?sort=name">ETHIOPIA (ET)</option>
+                                <option value="https://ourairports.com/countries/AE/airports.html?sort=name">UAE (AE)</option>
+                                <option value="https://ourairports.com/countries/SA/airports.html?sort=name">SAUDI ARABIA (SA)</option>
+                            </optgroup>
+                             <optgroup label="G20 & Major Powers">
+                                <option value="https://ourairports.com/countries/US/airports.html?sort=name">USA (US)</option>
+                                <option value="https://ourairports.com/countries/GB/airports.html?sort=name">UNITED KINGDOM (UK)</option>
+                                <option value="https://ourairports.com/countries/DE/airports.html?sort=name">GERMANY (DE)</option>
+                                <option value="https://ourairports.com/countries/FR/airports.html?sort=name">FRANCE (FR)</option>
+                                <option value="https://ourairports.com/countries/JP/airports.html?sort=name">JAPAN (JP)</option>
+                                <option value="https://ourairports.com/countries/KR/airports.html?sort=name">SOUTH KOREA (KR)</option>
+                            </optgroup>
+                        </select>
+
+                        <label>MANUAL OVERRIDE URL</label>
+                        <input type="text" id="target-url" value="https://ourairports.com/countries/ZA/airports.html?sort=name" placeholder="https://...">
+
+                        <label>THREAD CONCURRENCY</label>
+                        <input type="number" id="concurrency" value="5" min="1" max="20">
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="control-group">
+                        <div class="btn-row">
+                            <button id="btn-start" class="btn">INITIALIZE</button>
+                            <button id="btn-stop" class="btn danger" disabled>ABORT</button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div class="control-group">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-val" id="count-airports">0</span>
+                                <span class="stat-label">Acquired</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val" id="count-pages">0</span>
+                                <span class="stat-label">Scanned</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val" id="count-errors" style="color:var(--danger)">0</span>
+                                <span class="stat-label">Errors</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-val" id="current-proxy">--</span>
+                                <span class="stat-label">Gateway</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export -->
+                    <div class="control-group" style="margin-top:auto">
+                        <label>DATA EXTRACTION</label>
+                        <div class="btn-row">
+                            <button id="btn-csv" class="btn" disabled>CSV</button>
+                            <button id="btn-json" class="btn" disabled>JSON</button>
+                        </div>
+                    </div>
+
+                    <!-- Logs -->
+                    <div class="control-group">
+                        <label>SYSTEM LOGS</label>
+                        <div id="log-display" class="log-container"></div>
+                    </div>
+                    
+                    <!-- Footer moved into scrollable area or pinned at bottom of sidebar? Pinned is better. -->
+                </div>
+
+                <!-- Footer in Sidebar Pinned to Bottom -->
+                <div class="sidebar-footer">
+                    <p>
+                        Developed by Siyabonga B Phakathi of The Voice & Eye of Bhambatha Inc. © 2026<br>
+                        <a href="https://www.bhambathatablog.wordpress.com" target="_blank" rel="noopener noreferrer">Blog</a> |
+                        <a href="https://www.facebook.com/C.Datoxic.P" target="_blank" rel="noopener noreferrer">Facebook</a> |
+                        <a href="https://www.websim.com/@whisperinggalaxyd" target="_blank" rel="noopener noreferrer">WebSim</a> |
+                        <a href="https://www.github.com/datoxic0" target="_blank" rel="noopener noreferrer">GitHub</a> |
+                        <a href="https://discord.com/channels/datoxic0" target="_blank" rel="noopener noreferrer">Discord</a> |
+                        <a href="https://x.com/Siya_B_Phakathi" target="_blank" rel="noopener noreferrer">X</a>
+                    </p>
+                </div>
+            </aside>
+
+            <!-- Main Content: Data Table -->
+            <main class="panel data-view">
+                <div class="panel-header">
+                    <span>Visual Intelligence</span>
+                    <span id="scan-indicator">OFFLINE</span>
+                </div>
+                <div class="scan-line"></div>
+                <div class="table-container">
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>IDENT</th>
+                                <th>IATA</th>
+                                <th>NAME</th>
+                                <th>TYPE</th>
+                                <th>REGION</th>
+                                <th>MUNICIPALITY</th>
+                                <th>ELEVATION</th>
+                                <th>COORDS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
